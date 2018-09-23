@@ -162,6 +162,8 @@ export const retrieveAndDecryptData = () => {
             timeout: 1000
           })
             .then(response => {
+              console.log(('Response', response));
+
               const { nonce, message, checksum } = response.data;
               console.log('Message', message);
 

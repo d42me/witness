@@ -5,6 +5,7 @@ import { Heading, Text, Screen, View } from '@shoutem/ui';
 import { Actions as NavigationActions } from 'react-native-router-flux';
 // import { FooterPanel } from '../../components';
 import { retrieveAndDecryptData } from '../../actions';
+import { ReportCard } from '../../components';
 
 class Home extends Component {
   constructor(props) {
@@ -49,9 +50,14 @@ class Home extends Component {
   }
 
   renderReportCards(reports) {
+    const cards = [];
     if (reports != null) {
-      // Axios logic
+      // reports.forEach(report => {
+      //   const card = <ReportCard title={report.title} />;
+      //   cards.push(card);
+      // });
     }
+    return cards;
   }
 
   render() {

@@ -32,7 +32,7 @@ export const decrypt = ({
     privateKey,
     publicKey,
     nonce,
-    encryptedMessage,
+    Buffer.from(encryptedMessage.data),
     checksum
   );
   console.log(binaryToString(plaintext.toString()));
