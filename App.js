@@ -9,6 +9,7 @@
 import React, { Component } from 'react';
 import './shim.js'
 
+import ecc from 'eosjs-ecc'
 import Eos from 'eosjs'
 import { Platform, StyleSheet, Text, View, TextInput, Button } from 'react-native';
 import { get_info } from './EOS_example.js';
@@ -23,9 +24,9 @@ const instructions = Platform.select({
 });
 
 
-
 const account = "testacc";
 const privateKey = "5JkyvMymW2rrWjYDJf2Czq2nBCTxYCLBFLRgqbmfFgF2Rzjd6tf";
+const publicKey = "EOS6ZM6GZxn12w9RojRHfYJHP8A3MyhDNgGKPUGvxT43WFFJBUK3y";
 
 export default class App extends Component {
   constructor(props) {
@@ -36,8 +37,13 @@ export default class App extends Component {
       input: '',
       noteTable: [],
       report: {
-        post: ""
+        post: "",
+        nonce: "",
+        checksum: ""
       },
+      encryptedMessage: "",
+      nonce: "",
+      checksum: null,
       hashedMessage: ""
     };
     this.handleFormEvent = this.handleFormEvent.bind(this);
@@ -46,13 +52,9 @@ export default class App extends Component {
   // generic function to handle form events (e.g. "submit" / "reset")
   // push transactions to the blockchain by using eosjs
   async handleFormEvent() {
-    // stop default behaviour
 
-
-    console.log('handleFormEvent');
-
-
-    let jsonBody = { "post": this.state.input };
+    this.encrypt();
+    let jsonBody = { "post": this.state.encryptedMessage };
     var pinata_api_key = config.pinata_api_key;
     var pinata_secret_api_key = config.pinata_secret_api_key;
 
@@ -131,6 +133,51 @@ export default class App extends Component {
     );
   }
 
+  encrypt() {
+    //event.preventDefault();
+    console.log("Encrypt!");
+    let message = this.state.input;
+    //let message = "GO FUCK YOurself Yeaeyesyeeyseeyeys.";
+    let cyphertext = ecc.Aes.encrypt(privateKey, publicKey, message);
+
+    console.log(this.binaryToString(cyphertext.message.toString()));
+    this.setState({ encryptedMessage: cyphertext.message });
+    this.setState({ nonce: cyphertext.nonce });
+    this.setState({ checksum: cyphertext.checksum });
+
+  };
+
+  decrypt() {
+    console.log("decrypt!!!");
+
+    let plaintext = ecc.Aes.decrypt(privateKey, publicKey,
+      this.state.nonce, this.state.encryptedMessage, this.state.checksum);
+
+    console.log(this.binaryToString(plaintext.toString()));
+  }
+
+  textToBin(text) {
+    var length = text.length,
+      output = [];
+    for (var i = 0; i < length; i++) {
+      var bin = text[i].charCodeAt().toString(2);
+      output.push(Array(8 - bin.length + 1).join("0") + bin);
+    }
+    return output.join("");
+  }
+
+  binaryToString(str) {
+    console.log("str: ", str);
+    // Removes the spaces from the binary string
+    str = str.replace(/\s+/g, '');
+    // Pretty (correct) print binary (add a space every 8 characters)
+    str = str.match(/.{1,8}/g).join(" ");
+
+    var newBinary = str.split(" ");
+    console.log("newBinary: ", newBinary);
+
+    return newBinary.join("");
+  }
 
   componentDidMount() {
     this.getTable();
@@ -177,6 +224,10 @@ export default class App extends Component {
         />
         <Text style={styles.instructions}>Head Block Producer: {this.state.head_block_producer}</Text>
         <Text style={styles.instructions}>Chain Id {this.state.chain_id}</Text>
+        <Button
+          onPress={() => this.decrypt()}
+          title="decrypt"
+        />
       </View>
     );
   }
