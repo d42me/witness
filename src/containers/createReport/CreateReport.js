@@ -16,6 +16,14 @@ const questions = [
   'Any additional notes?'
 ];
 
+const placeholders = [
+  'Tell your story here...',
+  'Give as much detail as you can remember...',
+  'Give as much detail as you can remember...',
+  'Give as much detail as you can remember...',
+  'Give as much detail as you can remember...'
+];
+
 const stepsCount = questions.length;
 
 class CreateReport extends Component {
@@ -90,6 +98,7 @@ class CreateReport extends Component {
       // Present next scene and before send data
       const reportData = { keys: questionKeys, answers };
       this.props.createReport(reportData);
+      // NavigationActions.home();
     }
   }
 
@@ -110,6 +119,7 @@ class CreateReport extends Component {
             answerInputText={this.state.currentAnswer}
             style={styles.questionnairePanel}
             onAnswerEnter={this.onAnswerEnter}
+            placeholder={placeholders[currentStep]}
           />
         </View>
         <FooterPanel

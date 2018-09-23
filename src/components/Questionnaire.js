@@ -14,7 +14,7 @@ const Questionnaire = props => {
         <Text>{props.btnTitle}</Text>
       </Button>
       <TextInput
-        placeholder={'Username or email'}
+        placeholder={props.placeholder}
         defaultValue={props.answerInputText}
         onChangeText={text => props.onAnswerEnter(text)}
       />

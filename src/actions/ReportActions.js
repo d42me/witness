@@ -24,8 +24,6 @@ const getTableRows = () => {
         limit: 100
       })
       .then(result => {
-        console.log(result);
-
         resolve(result);
       })
       .catch(e => {
@@ -48,7 +46,6 @@ export const createReport = ({ keys, answers }) => {
     }
 
     const plainText = JSON.stringify(report);
-    console.log('Plain text', plainText);
     const { privateKey, publicKey, account } = config;
     const res = encrypt({ privateKey, publicKey, plainText });
     // const encryptedJSON = JSON.stringify(res);
@@ -66,15 +63,15 @@ export const createReport = ({ keys, answers }) => {
       })
       .then(response => {
         //handle response here
-        console.log(response.data);
-        console.log(response.data.IpfsHash);
-        // this.setState({ hashedMessage: response.data.IpfsHash });
+        console.log(response);
+
         pushTransaction({
           account,
           privateKey,
           hashedMessage: response.data.IpfsHash
         })
           .then(() => {
+            console.log('Successfully created!');
             dispatch({
               type: CREATE_RECORD_SUCCESS,
               payload: true
@@ -89,7 +86,6 @@ export const createReport = ({ keys, answers }) => {
       })
       .catch(error => {
         //handle error here
-        console.log(error);
         dispatch({ type: CREATE_RECORD_FAILURE, payload: error });
       });
   };
@@ -136,7 +132,6 @@ const fetchReports = () => {
   return new Promise((resolve, reject) => {
     getTableRows()
       .then(res => {
-        console.log(res.rows);
         resolve(res.rows);
       })
       .catch(e => {
@@ -153,19 +148,16 @@ export const retrieveAndDecryptData = () => {
         let i = 0;
         const promises = [];
         for (const report of reports) {
-          console.log(report);
-          const url = `https://ipfs.io/ipfs/${report.hashedMessage}`;
-          console.log(url);
+          console.log(report.hashedMessage);
 
           const promise = axios({
             url: `https://ipfs.io/ipfs/${report.hashedMessage}`,
             timeout: 1000
           })
             .then(response => {
-              console.log(('Response', response));
+              console.log(response);
 
               const { nonce, message, checksum } = response.data;
-              console.log('Message', message);
 
               const { privateKey, publicKey } = config;
               const res = decrypt({
@@ -180,14 +172,13 @@ export const retrieveAndDecryptData = () => {
             .catch(error => {
               // handle error
               console.log(error);
+
               dispatch({ type: FETCH_REPORTS_FAILURE, payload: error });
             });
           promises.push(promise);
           i += 1;
         }
-        console.log('after loop');
         Promise.all(promises).then(res => {
-          console.log(res);
           dispatch({ type: FETCH_REPORTS_SUCCESS, payload: res });
         });
       })

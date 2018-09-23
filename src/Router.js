@@ -7,13 +7,21 @@ import CreateReport from './containers/createReport/CreateReport';
 // import requireAuth from './containers/auth/requireAuth';
 // import requireNotAuth from './containers/auth/requireNotAuth';
 
-const RouterComponent = () => {
+const RouterComponent = isInitialStart => {
   return (
     <Router showNavigationBar={false} style={styles.routerStyle}>
-      <Stack key="main" type={ActionConst.RESET} hideNavBar>
-        <Scene key="home" component={Home} hideNavBar />
-        <Scene key="intro" component={Onboarding} hideNavBar />
-        <Scene key="createReport" component={CreateReport} hideNavBar />
+      <Stack hideNavBar>
+        <Stack hideNavBar key="start">
+          {isInitialStart ? (
+            <Scene key="intro" component={Onboarding} hideNavBar />
+          ) : (
+            <Scene key="home" component={Home} hideNavBar />
+          )}
+        </Stack>
+        <Stack key="main" type={ActionConst.RESET} hideNavBar>
+          <Scene key="home" component={Home} hideNavBar />
+          <Scene key="createReport" component={CreateReport} hideNavBar />
+        </Stack>
       </Stack>
     </Router>
   );

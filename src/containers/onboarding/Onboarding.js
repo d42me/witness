@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { BackHandler, StyleSheet } from 'react-native';
+import { BackHandler, StyleSheet, AsyncStorage } from 'react-native';
 import { connect } from 'react-redux';
 import { Heading, Text, Screen, View } from '@shoutem/ui';
 import { Actions as NavigationActions } from 'react-native-router-flux';
@@ -32,6 +32,12 @@ class Onboarding extends Component {
     NavigationActions.createReport();
   }
 
+  presentHome() {
+    AsyncStorage.setItem('@hasSeenIntro40', JSON.stringify(true)).then(() =>
+      NavigationActions.home()
+    );
+  }
+
   render() {
     return (
       <Screen style={{ flex: 1 }}>
@@ -47,7 +53,7 @@ class Onboarding extends Component {
         <FooterPanel
           style={styles.footerPanel}
           btnTitle={"I'm ready"}
-          btnHandler={() => this.presentCreateReport()}
+          btnHandler={() => this.presentHome()}
         />
       </Screen>
     );

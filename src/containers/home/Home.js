@@ -1,11 +1,11 @@
 import React, { Component } from 'react';
-import { BackHandler, StyleSheet } from 'react-native';
+import { BackHandler, StyleSheet, ScrollView } from 'react-native';
 import { connect } from 'react-redux';
 import { Heading, Text, Screen, View } from '@shoutem/ui';
 import { Actions as NavigationActions } from 'react-native-router-flux';
 // import { FooterPanel } from '../../components';
 import { retrieveAndDecryptData } from '../../actions';
-import { ReportCard } from '../../components';
+import { ReportCard, FooterPanel } from '../../components';
 
 class Home extends Component {
   constructor(props) {
@@ -23,12 +23,7 @@ class Home extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    console.log(nextProps);
-
-    if (
-      (nextProps.reports != null) &
-      (this.state.reports !== nextProps.reports)
-    ) {
+    if (nextProps.reports != null && nextProps.reports !== this.state.reports) {
       this.setState({
         reports: nextProps.reports
       });
@@ -49,36 +44,70 @@ class Home extends Component {
     NavigationActions.createReport();
   }
 
+  renderCard(report, i) {
+    if (i === 0) {
+      return <ReportCard report={report} key={i} isFirstCard />;
+    }
+    return <ReportCard report={report} key={i} />;
+  }
+
   renderReportCards(reports) {
     const cards = [];
+    let i = 0;
     if (reports != null) {
-      // reports.forEach(report => {
-      //   const card = <ReportCard title={report.title} />;
-      //   cards.push(card);
-      // });
+      reports.forEach(report => {
+        const card = this.renderCard(report, i);
+        cards.push(card);
+        i++;
+      });
     }
     return cards;
   }
 
+  createReport() {
+    NavigationActions.createReport();
+  }
+
   render() {
     const { reports } = this.state;
+    console.log(reports);
+
     return (
-      <Screen style={{ flex: 1 }}>{this.renderReportCards(reports)}</Screen>
+      <Screen style={{ flex: 1 }}>
+        <Heading style={styles.heading}>Your reports:</Heading>
+        <ScrollView style={styles.cardWrapper} horizontal>
+          {this.renderReportCards([{ Test: 1 }])}
+        </ScrollView>
+        <FooterPanel
+          style={styles.footerPanel}
+          btnTitle={'Create report'}
+          btnHandler={() => this.createReport()}
+        />
+      </Screen>
     );
   }
 }
 
 const styles = StyleSheet.create({
   container: {},
+  heading: {
+    paddingLeft: 40,
+    marginTop: 100
+  },
   contentWrapper: {
-    flex: 0.8,
+    flex: 1,
     justifyContent: 'center',
-    padding: 60,
-    backgroundColor: '#fff'
+    padding: 60
+  },
+  cardWrapper: {
+    flex: 0.8
   },
   footerPanel: {
     flex: 0.2,
     justifyContent: 'flex-end'
+  },
+  reportCardContentWrapper: {
+    justifyContent: 'center'
   }
 });
 
