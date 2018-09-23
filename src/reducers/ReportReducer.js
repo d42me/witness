@@ -8,7 +8,7 @@ import {
 } from '../actions/types';
 
 const INITIAL_STATE = {
-  reports: [],
+  reports: null,
   error: null,
   loading: false,
   created: null

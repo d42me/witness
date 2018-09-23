@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import { Screen, View, Button, Icon } from '@shoutem/ui';
 import { Actions as NavigationActions } from 'react-native-router-flux';
 import { FooterPanel, Questionnaire } from '../../components';
-import { fetchReports, createReport } from '../../actions';
+import { createReport } from '../../actions';
 
 const questionKeys = ['subject', 'location', 'hasHappened', 'members', 'notes'];
 
@@ -34,7 +34,6 @@ class CreateReport extends Component {
 
   componentDidMount() {
     BackHandler.addEventListener('hardwareBackPress', () => this.backAndroid());
-    this.props.fetchReports();
   }
 
   componentWillReceiveProps(nextProps) {
@@ -146,12 +145,12 @@ const styles = StyleSheet.create({
   }
 });
 
-const mapStateToProps = report => {
+const mapStateToProps = ({ report }) => {
   const { reports, error, loading, created } = report;
   return { reports, error, loading, created };
 };
 
 export default connect(
   mapStateToProps,
-  { fetchReports, createReport }
+  { createReport }
 )(CreateReport);

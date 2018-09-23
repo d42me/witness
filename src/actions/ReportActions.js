@@ -12,19 +12,6 @@ import {
 import { encrypt, decrypt } from './CryptoHelper';
 import config from '../../config';
 
-export const fetchReports = () => {
-  return dispatch => {
-    dispatch({ type: FETCH_REPORTS_REQUEST });
-    getTableRows()
-      .then(res => {
-        dispatch({ type: FETCH_REPORTS_SUCCESS, payload: res });
-      })
-      .catch(e => {
-        dispatch({ type: FETCH_REPORTS_FAILURE, payload: e });
-      });
-  };
-};
-
 const getTableRows = () => {
   return new Promise((resolve, reject) => {
     const eos = Eos();
@@ -144,4 +131,66 @@ const pushTransaction = ({ account, privateKey, hashedMessage }) => {
         resolve(res);
       });
   });
+};
+
+const fetchReports = () => {
+  return new Promise((resolve, reject) => {
+    getTableRows()
+      .then(res => {
+        console.log(res.rows);
+        resolve(res.rows);
+      })
+      .catch(e => {
+        reject(e);
+      });
+  });
+};
+
+export const retrieveAndDecryptData = () => {
+  return dispatch => {
+    dispatch({ type: FETCH_REPORTS_REQUEST });
+    fetchReports()
+      .then(reports => {
+        let i = 0;
+        const promises = [];
+        for (const report of reports) {
+          console.log(report);
+          const url = `https://ipfs.io/ipfs/${report.hashedMessage}`;
+          console.log(url);
+
+          const promise = axios({
+            url: `https://ipfs.io/ipfs/${report.hashedMessage}`,
+            timeout: 1000
+          })
+            .then(response => {
+              console.log('in promise');
+              const { nonce, message, checksum } = response.data;
+              const { privateKey, publicKey } = config;
+              const res = decrypt({
+                privateKey,
+                publicKey,
+                nonce,
+                encryptedMessage: message,
+                checksum
+              });
+              return res;
+            })
+            .catch(error => {
+              // handle error
+              console.log(error);
+              dispatch({ type: FETCH_REPORTS_FAILURE, payload: error });
+            });
+          promises.push(promise);
+          i += 1;
+        }
+        console.log('after loop');
+        Promise.all(promises).then(res => {
+          console.log(res);
+          dispatch({ type: FETCH_REPORTS_SUCCESS, payload: res });
+        });
+      })
+      .catch(e => {
+        dispatch({ type: FETCH_REPORTS_FAILURE, payload: e });
+      });
+  };
 };

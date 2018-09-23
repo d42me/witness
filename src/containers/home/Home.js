@@ -3,19 +3,35 @@ import { BackHandler, StyleSheet } from 'react-native';
 import { connect } from 'react-redux';
 import { Heading, Text, Screen, View } from '@shoutem/ui';
 import { Actions as NavigationActions } from 'react-native-router-flux';
-import { FooterPanel } from '../../components';
-// import { fetchMembers, fetchGroups, fetchUserGroups } from '../../actions';
+// import { FooterPanel } from '../../components';
+import { retrieveAndDecryptData } from '../../actions';
 
-class Onboarding extends Component {
+class Home extends Component {
   constructor(props) {
     super(props);
-    this.state = {};
+    this.state = {
+      reports: null
+    };
   }
 
   componentWillMount() {}
 
   componentDidMount() {
     BackHandler.addEventListener('hardwareBackPress', () => this.backAndroid());
+    this.props.retrieveAndDecryptData();
+  }
+
+  componentWillReceiveProps(nextProps) {
+    console.log(nextProps);
+
+    if (
+      (nextProps.reports != null) &
+      (this.state.reports !== nextProps.reports)
+    ) {
+      this.setState({
+        reports: nextProps.reports
+      });
+    }
   }
 
   componentWillUnmount() {
@@ -32,24 +48,16 @@ class Onboarding extends Component {
     NavigationActions.createReport();
   }
 
+  renderReportCards(reports) {
+    if (reports != null) {
+      // Axios logic
+    }
+  }
+
   render() {
+    const { reports } = this.state;
     return (
-      <Screen style={{ flex: 1 }}>
-        <View style={styles.contentWrapper}>
-          <Heading>I am Witness. </Heading>
-          <Text>
-            I can create a private record of any type of attack or harassment.
-            Your memory will be recorded permanently on the EOS Blockchain. Only
-            you can access these records - it's your choice if and when you come
-            forward.
-          </Text>
-        </View>
-        <FooterPanel
-          style={styles.footerPanel}
-          btnTitle={"I'm ready"}
-          btnHandler={() => this.presentCreateReport()}
-        />
-      </Screen>
+      <Screen style={{ flex: 1 }}>{this.renderReportCards(reports)}</Screen>
     );
   }
 }
@@ -68,11 +76,12 @@ const styles = StyleSheet.create({
   }
 });
 
-const mapStateToProps = state => {
-  return state;
+const mapStateToProps = ({ report }) => {
+  const { reports, error, loading, created } = report;
+  return { reports, error, loading, created };
 };
 
 export default connect(
   mapStateToProps,
-  {}
-)(Onboarding);
+  { retrieveAndDecryptData }
+)(Home);
