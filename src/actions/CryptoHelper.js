@@ -1,14 +1,12 @@
 import ecc from 'eosjs-ecc';
 
 export const encrypt = ({ privateKey, publicKey, plainText }) => {
-  //event.preventDefault();
-  console.log('Encrypt!');
-  //let message = "GO FUCK YOurself Yeaeyesyeeyseeyeys.";
   const cyphertext = ecc.Aes.encrypt(privateKey, publicKey, plainText);
-
+  console.log('Cyphertext', cyphertext);
   console.log(binaryToString(cyphertext.message.toString()));
   const { nonce, message, checksum } = cyphertext;
-  const res = { nonce, message, checksum };
+  const nonceStr = nonce.toString();
+  const res = { nonce: nonceStr, message, checksum };
   return res;
 };
 
@@ -29,8 +27,7 @@ export const decrypt = ({
   encryptedMessage,
   checksum
 }) => {
-  console.log('decrypt!!!');
-
+  console.log(privateKey, publicKey, nonce, encryptedMessage, checksum);
   const plaintext = ecc.Aes.decrypt(
     privateKey,
     publicKey,
@@ -38,7 +35,6 @@ export const decrypt = ({
     encryptedMessage,
     checksum
   );
-
   console.log(binaryToString(plaintext.toString()));
   return binaryToString(plaintext.toString());
 };

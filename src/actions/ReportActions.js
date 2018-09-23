@@ -39,27 +39,26 @@ export const createReport = ({ keys, answers }) => {
     dispatch({ type: CREATE_RECORD_REQUEST });
 
     // Wrap data
-    const report = [];
-    const i = 0;
+    const report = {};
+    let i = 0;
     for (const answer of answers) {
       const key = keys[i];
-      const reportQuestion = { [key]: answer };
-      report.push({
-        reportQuestion
-      });
+      report[key] = answer;
+      i++;
     }
 
-    const json = JSON.stringify(report);
+    const plainText = JSON.stringify(report);
+    console.log('Plain text', plainText);
     const { privateKey, publicKey, account } = config;
-    const res = encrypt({ privateKey, publicKey, plainText: json });
-    const encryptedJSON = JSON.stringify(res);
+    const res = encrypt({ privateKey, publicKey, plainText });
+    // const encryptedJSON = JSON.stringify(res);
 
     const pinataApiKey = config.pinata_api_key;
     const pinataSecretApiKey = config.pinata_secret_api_key;
 
     const url = `https://api.pinata.cloud/pinning/pinJSONToIPFS`;
     axios
-      .post(url, encryptedJSON, {
+      .post(url, res, {
         headers: {
           pinata_api_key: pinataApiKey,
           pinata_secret_api_key: pinataSecretApiKey
@@ -163,8 +162,9 @@ export const retrieveAndDecryptData = () => {
             timeout: 1000
           })
             .then(response => {
-              console.log('in promise');
               const { nonce, message, checksum } = response.data;
+              console.log('Message', message);
+
               const { privateKey, publicKey } = config;
               const res = decrypt({
                 privateKey,
