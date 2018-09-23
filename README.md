@@ -1,95 +1,62 @@
-# eosjs-react-native
-This is a simple react-native project in which the steps to configure eosjs on react-native are shown.
-Since the node dependencies in the eosjs package are not 100% compatible with react-native (per example, elliptic curve cryptography and true secure random number generation), the hacky solution in this example is to browserify the library to emulate it as a browser component in react-native.
-At [Eva](http://eva.coop/), we needed a library to sign transaction and push them onto the EOS blockchain in our react-native app, hence we found this way until a more suitable complete library is written.
+# Witness
 
-## Authors
-[@raphgodro](https://github.com/raphaelgodro)
-## Dependencies
-This would not have been possible without the work of these two libraries
+77 percent of people who experienced rape or sexual assault say they did not tell police. 
 
-- [EOSJS](https://github.com/EOSIO/eosjs)
-- [RN-NODEIFY](https://github.com/tradle/rn-nodeify)
+In a moment of crisis, many people face an impossible choice about coming forward. They may fear physical retaliation, public shaming, or even being kicked out of their home despite the fact that they’ve done nothing wrong. Bringing charges is not always easy decision and people shouldn’t have to make it overnight. 
 
-## New react-native project
-In order to install this repository as a base for a new react-native app client do the following:
+Yet victims who do come forward months or years after the crime face a double assault on their credibility - why didn’t they report it sooner? and what’s their motive for coming forward now?
 
-First, install the project.
+Blockchain can help. 
 
-```
-git clone https://github.com/EvaCoop/eosjs-react-native/
-cd eosjs-react-native
-npm install
-react-native eject
-sh hack_to_browser.sh
-react-native link
-```
+Witness allows users to create a private, encrypted record of an encounter. The record is immutable, it’s timestamped, and can be decrypted and revealed years later with mathematical proof that the story hasn’t changed. 
 
-You need to do a little tweak now in the library `isomorphic-fetch` file `fetch-npm-browserify.js`
+Witness protects a user's privacy and security in a moment of crisis and protects their credibility when they come forward publicly.
 
-```
-vi ./node_modules/isomorphic-fetch/fetch-npm-browserify.js
+In order to make optimal use of the chain, Witness stores the full encrypted record of each incident on IPFS and our smart contract writes the IPFS hash to the EOS blockchain. This makes the content immutable and trustless. 
 
-```
-Add a line before the `module.exports` line.
+Smart contracts are also used to manage multi-signature Witness rights, in cases where multiple users may want to sign a single statement or Witnesses want to grant read access to people they trust. 
 
-```
-var self = this;
-```
+The system is designed to be simple and usable for people from all walks of life. We want to ensure that the user onboarding experience is familiar and easy - so we’ll add integrations to Google, Facebook and other common login systems. 
 
-Now you can try running the project, make sure the good HTTP address is set to your local RPC API Node in `EOS_example.js`.
+Here in the UK, the government estimates that 12.1% of adults aged 16 to 59 have experienced sexual assault. That’s millions of people in the UK alone - and probably over a billion people around the world.
 
-```
-react-native run-ios //or - react-native run-android
-```
-
-## Existing react-native project
-The following steps describe how to integrate eosjs in an existing react-native project.
-
-Your project needs to be created from `react-native init` and not the `create-react-native-app` cli. It has to be independent from `Expo` and configurable with Xcode and Android Studio. Browserifying doesn't work with react-native Expo projects.
-
-First, install [rn-nodeify](https://github.com/tradle/rn-nodeify)
-
-```
-npm install rn-nodeify
-```
-Then Install eosjs, securerandom rn
-
-```
-npm i --save eosjs
-```
-Then make sure `require('crypto')` is present in the file shim.js at the root of the project
-
-You need to do a little tweak now in the library `isomorphic-fetch` file `fetch-npm-browserify.js`
-
-```
-vi ./node_modules/isomorphic-fetch/fetch-npm-browserify.js
-
-```
-Add a line before the `module.exports` line.
-
-```
-var self = this;
-```
+Let’s shift the balance of power away from attackers and towards their victims.
 
 
-You then need to activate the browserifying using the rn-nodeify script. It is written in a sh script in the repo.
+##Gets started
 
-```
-sh hack_to_browser.sh
-```
-Then
+./quick_start.sh
 
-```
-react-native link
-```
+cleos wallet create --to-console
 
-Now you can try running the project, make sure the good HTTP address is set to your local RPC API Node in `EOS_example.js`.
+cleos wallet import --private-key 5KQwrPbwdL6PhXujxW37FSSQZ1JiwsST4cqQzDeyXtP79zkvFD3
 
-```
-react-native run-ios //or - react-native run-android
-```
+cleos create key --to-console
+testacc owner Public Key: "EOS6MRyAjQq8ud7hVNYcfnVPJqcVpscN5So8BhtHuGYqET5GDW5CV",
+testacc owner Private Key: "5KQwrPbwdL6PhXujxW37FSSQZ1JiwsST4cqQzDeyXtP79zkvFD3"
 
-## Roadmap and contribution
-Contribution would be really appreciated. One day this library could properly map eosjs into a react-native package we can use the node package manager `npm` to install directly in a react-native project without the manual tweaking.
-# witness
+cleos create key --to-console
+testacc active Public Key: "EOS7EzCEh94uN2k59wznzsZDcFVnpZ3wuiYvPSbb8bXDS6U7twKQF",
+testacc active Public Key: "5JKrSzsuztAPvTzghi9VU4522sT49SeE3XVHbB8HsfC3ikifJRf"
+
+cleos create account eosio testacc pubkey1 pubkey2
+
+eosiocpp -o /opt/eosio/bin/contracts/report/report.wast /opt/eosio/bin/contracts/report/report.cpp
+
+eosiocpp -g /opt/eosio/bin/contracts/report/report.abi /opt/eosio/bin/contracts/report/report.cpp
+
+cleos set contract testacc /opt/eosio/bin/contracts/report/ --permission testacc@active
+
+Also you have to add a config.js in the root directory with this format:
+
+var config = {
+    pinata_api_key: 'YOUR_PINATA_API_KEY',
+    pinata_secret_api_key: 'YOUR_SECRET_PINATA_API_KEY',
+    account: 'testacc',
+    privateKey: 'YOUR_GENERETATED_PRIVATE_KEY',
+    publicKey: 'YOUR_GENERETATED_PUBLIC_KEY'
+}
+module.exports = config;
+
+
+PS: We will probably put that in a script, but just for now as a reminder ;) 
