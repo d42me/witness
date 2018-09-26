@@ -98,7 +98,7 @@ class CreateReport extends Component {
       // Present next scene and before send data
       const reportData = { keys: questionKeys, answers };
       this.props.createReport(reportData);
-      // NavigationActions.home();
+      NavigationActions.home();
     }
   }
 

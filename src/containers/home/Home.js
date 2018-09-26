@@ -44,11 +44,16 @@ class Home extends Component {
     NavigationActions.createReport();
   }
 
+  createReport() {
+    NavigationActions.createReport();
+  }
+
   renderCard(report, i) {
+    const reportParsed = report ? JSON.parse(report) : [];
     if (i === 0) {
-      return <ReportCard report={report} key={i} isFirstCard />;
+      return <ReportCard report={reportParsed} key={i} isFirstCard />;
     }
-    return <ReportCard report={report} key={i} />;
+    return <ReportCard report={reportParsed} key={i} />;
   }
 
   renderReportCards(reports) {
@@ -64,19 +69,13 @@ class Home extends Component {
     return cards;
   }
 
-  createReport() {
-    NavigationActions.createReport();
-  }
-
   render() {
     const { reports } = this.state;
-    console.log(reports);
-
     return (
       <Screen style={{ flex: 1 }}>
         <Heading style={styles.heading}>Your reports:</Heading>
         <ScrollView style={styles.cardWrapper} horizontal>
-          {this.renderReportCards([{ Test: 1 }])}
+          {this.renderReportCards(reports)}
         </ScrollView>
         <FooterPanel
           style={styles.footerPanel}
